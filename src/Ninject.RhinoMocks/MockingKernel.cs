@@ -37,7 +37,7 @@ namespace Ninject.RhinoMocks
 				var binding = new Binding(service)
 					{
 						ProviderCallback = MockProvider.GetCreationCallback(),
-						ScopeCallback = new Func<IContext, Object>((IContext ctx) => StaticScope), 
+						ScopeCallback = ctx => StaticScope, 
 						IsImplicit = true
 					};
 
