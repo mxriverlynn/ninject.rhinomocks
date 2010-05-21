@@ -1,8 +1,9 @@
 ﻿using System;
+using Ninject.Activation;
 using Ninject.Activation.Caching;
 using Ninject.Planning.Bindings;
 
-namespace Ninject.Moq
+namespace Ninject.RhinoMocks
 {
 	/// <summary>
 	/// A kernel that will create mocked instances (via Moq) for any service that is
@@ -10,9 +11,10 @@ namespace Ninject.Moq
 	/// </summary>
 	public class MockingKernel : StandardKernel
 	{
+		private static readonly object StaticScope = new object();
+
 		/// <summary>
-		/// Clears the kernel's cache, immediately deactivating all activated instances regardless of scope.
-		/// This does not remove any modules, extensions, or bindings.
+		/// 
 		/// </summary>
 		public void Reset()
 		{
@@ -20,22 +22,29 @@ namespace Ninject.Moq
 		}
 
 		/// <summary>
-		/// Attempts to handle a missing binding for a service.
+		/// 
 		/// </summary>
-		/// <param name="service">The service.</param>
-		/// <returns><c>True</c> if the missing binding can be handled; otherwise <c>false</c>.</returns>
+		/// <param name="service"></param>
+		/// <returns></returns>
 		protected override bool HandleMissingBinding(Type service)
 		{
-			var binding = new Binding(service)
+			bool selfBindable = TypeIsSelfBindable(service);
+
+			if (selfBindable)
+				Bind(service).ToSelf().InSingletonScope();
+			else
 			{
-				ProviderCallback = MockProvider.GetCreationCallback(),
-				ScopeCallback = ctx => null,
-				IsImplicit = true
-			};
+				var binding = new Binding(service)
+					{
+						ProviderCallback = MockProvider.GetCreationCallback(),
+						ScopeCallback = new Func<IContext, Object>((IContext ctx) => StaticScope), 
+						IsImplicit = true
+					};
 
-			AddBinding(binding);
-
+				AddBinding(binding);
+			}
 			return true;
 		}
+
 	}
 }

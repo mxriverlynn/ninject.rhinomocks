@@ -1,35 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using Rhino.Mocks;
 using Ninject.Activation;
 using Ninject.Injection;
 
-namespace Ninject.Moq
+namespace Ninject.RhinoMocks
 {
 	/// <summary>
 	/// Creates mocked instances via Moq.
 	/// </summary>
 	public class MockProvider : IProvider
 	{
-		private static readonly Dictionary<Type, ConstructorInjector> _injectors = new Dictionary<Type, ConstructorInjector>();
-
 		/// <summary>
 		/// Gets the type (or prototype) of instances the provider creates.
 		/// </summary>
 		public Type Type { get; private set; }
 
 		/// <summary>
-		/// Gets the injector factory component.
-		/// </summary>
-		public IInjectorFactory InjectorFactory { get; private set; }
-
-		/// <summary>
 		/// Initializes a new instance of the <see cref="MockProvider"/> class.
 		/// </summary>
-		/// <param name="injectorFactory">The injector factory component.</param>
-		public MockProvider(IInjectorFactory injectorFactory)
+		///	<param name="type">the Type of object being mocked</param>
+		public MockProvider(Type type)
 		{
-			InjectorFactory = injectorFactory;
+			Type = type;
 		}
 
 		/// <summary>
@@ -39,8 +31,9 @@ namespace Ninject.Moq
 		/// <returns>The created instance.</returns>
 		public object Create(IContext context)
 		{
-			var mocks = new MockRepository();
-			return mocks.StrictMock(Type, Type.EmptyTypes);
+			var method = typeof(MockRepository).GetMethod("GenerateMock");
+			var genericMethod = method.MakeGenericMethod(Type);
+			return genericMethod.Invoke(null, new object[1] { null });
 		}
 
 		/// <summary>
@@ -49,7 +42,7 @@ namespace Ninject.Moq
 		/// <returns>The created callback.</returns>
 		public static Func<IContext, IProvider> GetCreationCallback()
 		{
-			return ctx => new MockProvider(ctx.Kernel.Components.Get<IInjectorFactory>());
+			return ctx => new MockProvider(ctx.Request.Service);
 		}
 	}
 }

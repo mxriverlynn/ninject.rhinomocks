@@ -2,25 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ninject.Moq;
 using NUnit.Framework;
+using Rhino.Mocks;
 
 namespace Ninject.RhinoMocks.Tests
 {
 	[TestFixture]
 	public class AutoMockingTests
 	{
+		private MockingKernel kernel;
+
+		[SetUp]
+		public void Setup()
+		{
+			kernel = new MockingKernel();
+		}
 
 		[Test]
 		public void automocking_should_provide_the_required_mock_instance()
 		{
-			MockingKernel kernel = new MockingKernel();
-			kernel.Bind<ISomething>().ToMock();
 			var SUT = kernel.Get<TestClass>();
 			SUT.TestMethod();
+
+			var something = kernel.Get<ISomething>();
+			something.AssertWasCalled(s => s.DoSomething());
 		}
 
-
+		[TearDown]
+		public void Teardown()
+		{
+			kernel.Reset();
+		}
 	}
 
 	public interface ISomething

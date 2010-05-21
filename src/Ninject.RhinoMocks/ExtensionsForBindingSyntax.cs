@@ -4,7 +4,7 @@ using Ninject.Injection;
 using Ninject.Planning.Bindings;
 using Ninject.Syntax;
 
-namespace Ninject.Moq
+namespace Ninject.RhinoMocks
 {
 	/// <summary>
 	/// Extensions for the fluent binding syntax API.
@@ -25,7 +25,7 @@ namespace Ninject.Moq
 
 			IBinding binding = haveBinding.Binding;
 
-			binding.ProviderCallback = ctx => new MockProvider(ctx.Kernel.Components.Get<IInjectorFactory>());
+			binding.ProviderCallback = ctx => new MockProvider(typeof(T));
 
 			return builder as IBindingWhenInNamedWithOrOnSyntax<T>;
 		}
