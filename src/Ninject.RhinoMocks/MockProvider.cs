@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Moq;
+using Rhino.Mocks;
 using Ninject.Activation;
 using Ninject.Injection;
 
@@ -16,10 +16,7 @@ namespace Ninject.Moq
 		/// <summary>
 		/// Gets the type (or prototype) of instances the provider creates.
 		/// </summary>
-		public Type Type
-		{
-			get { return typeof(Mock<>); }
-		}
+		public Type Type { get; private set; }
 
 		/// <summary>
 		/// Gets the injector factory component.
@@ -42,25 +39,8 @@ namespace Ninject.Moq
 		/// <returns>The created instance.</returns>
 		public object Create(IContext context)
 		{
-			ConstructorInjector injector = GetInjector(context.Request.Service);
-			var mock = injector.Invoke() as Mock;
-			return mock.Object;
-		}
-
-		private ConstructorInjector GetInjector(Type service)
-		{
-			lock (_injectors)
-			{
-				Type mockType = typeof(Mock<>).MakeGenericType(service);
-
-				if (_injectors.ContainsKey(mockType))
-					return _injectors[mockType];
-
-				ConstructorInjector injector = InjectorFactory.Create(mockType.GetConstructor(Type.EmptyTypes));
-				_injectors[mockType] = injector;
-
-				return injector;
-			}
+			var mocks = new MockRepository();
+			return mocks.StrictMock(Type, Type.EmptyTypes);
 		}
 
 		/// <summary>

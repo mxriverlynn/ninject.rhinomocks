@@ -1,4 +1,4 @@
-This extension provides integration between Ninject and Moq, creating a "lightweight" auto-mocking container.
+This extension provides integration between Ninject and RhinoMocks, creating a "lightweight" auto-mocking container.
 In your tests, you should use the MockingKernel instead of the StandardKernel. It adds the following features to Ninject:
 
 1. The following syntax will bind a service to the mocked object of a Mock<T>:
@@ -12,4 +12,3 @@ In your tests, you should use the MockingKernel instead of the StandardKernel. I
    remain in scope. You can call this method after each test to ensure that instances are reactivated, without having
    to dispose and re-initialize the kernel each time.
 
-Hat tip to [Scott Reynolds](http://github.com/scottcreynolds) for the idea, and to [Sean Chambers](http://github.com/schambers) for dogfooding.
